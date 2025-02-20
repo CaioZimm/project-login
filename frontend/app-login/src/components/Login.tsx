@@ -1,21 +1,25 @@
 import { useState } from "react";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
+
+interface User {
+    name: string;
+    email: string;
+    password: string;
+}
 
 function Login(){
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState<User | null>(null);
 
     const [error, setError] = useState('');
     
-    const handleLogin = async (e) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        console.log(email, password);
-
         try {
-            const response = await axios.post('http://localhost:3000/auth/login', 
+            const response: AxiosResponse<{ data: User }> = await axios.post('http://localhost:3000/auth/login', 
                 JSON.stringify({email, password}),
                 {
                     headers: { 'Content-Type': 'application/json'}
@@ -24,7 +28,7 @@ function Login(){
 
             console.log(response.data);
 
-            setUser(response.data);
+            setUser(response.data.data);
 
         } catch (error) {
             if(!error?.response){
@@ -35,6 +39,10 @@ function Login(){
         }
         
     };
+
+    const handleLogout = () =>{
+        setUser(null);
+    }
 
     return (
       <>
@@ -55,9 +63,9 @@ function Login(){
             </div>
     ) : (
             <div>
-                <h2> Olá, {user.name}</h2>
+                <h2>Olá, {user?.name || "Usuário sem nome"}</h2> 
 
-                <button type="button" className=""></button>
+                <button type="button" className="btn-login" onClick={handleLogout}> Voltar </button>
             </div>
     )}
         </div>
